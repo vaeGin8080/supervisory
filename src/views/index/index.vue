@@ -5,17 +5,6 @@
 		</el-header>
 		<div class="line"></div>
 		<el-main>
-	<!-- 		<div class="operation">
-				<div style="width: 20%;">
-					<el-input v-model="search" placeholder="请输入内容"></el-input>
-				</div>
-				<div class="searchBut">
-					<el-button type="primary"
-					@click="searchButton">搜索</el-button>
-				</div>
-				<el-button type="primary" style="float: right;">新增监控</el-button>
-				<el-button type="danger" style="float: right;">批量删除</el-button>
-			</div> -->
 			<el-row style="border: 1px solid #EBEEF5;">
 				<el-col :span="6">
 					<el-input v-model="search" placeholder="请输入内容"></el-input>
