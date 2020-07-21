@@ -1,14 +1,26 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import index from "../views/index/index.vue";
+import Layout from "@/layout";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/",
-    name: "index",
-    component: index,
+    name: "Home",
+    redirect: "/home",
+    component: Layout,
+    children: [
+      {
+        path: "home",
+        name: "index",
+        meta: {
+          title: "首页",
+        },
+        component: () =>
+          import(/* webpackChunkName: "about" */ "../views/Home/index.vue"),
+      },
+    ],
   },
   // {
   //   path: "/about",
