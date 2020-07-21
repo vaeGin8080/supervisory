@@ -9,8 +9,16 @@ export function getUrlList(query) {
   });
 }
 
+// 删除
+export function getUrlRemove(query) {
+  return request({
+    url: "/remove",
+    method: "post",
+    data: query,
+  });
+}
 
-//新增
+// 检测网站连通性
 export function getUrlInsert(query) {
   return request({
     url: "/insert",
@@ -19,10 +27,10 @@ export function getUrlInsert(query) {
   });
 }
 
-//删除
-export function getUrlRemove(query) {
+// 检测网站连通性
+export function checkUrl(query) {
   return request({
-    url: "/remove",
+    url: "/trys",
     method: "post",
     data: query,
   });

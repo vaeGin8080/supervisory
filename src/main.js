@@ -6,8 +6,8 @@ import * as urls from "@/config/env";
 
 import "./permission";
 import "./settings";
-
-import "@/styles/index.scss"; // global css
+import "./styles/element-variables.scss";
+import "./styles/index.scss"; // global css
 
 // 加载相关url地址
 Object.keys(urls).forEach((key) => {
