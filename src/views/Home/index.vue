@@ -1,8 +1,5 @@
 <template>
   <el-container>
-    <el-header>
-      <Header></Header>
-    </el-header>
     <div class="line"></div>
     <el-main>
       <!-- 		<div class="operation">
@@ -24,10 +21,12 @@
           <el-button type="primary" @click="searchButton">搜索</el-button>
         </el-col>
         <el-col :span="4" :offset="12">
-          <el-button type="primary">新增监控</el-button>
-          <el-button type="danger" @click="BatchDeleteHandler"
-            >批量删除</el-button
-          >
+          <div class="flex-ali">
+            <el-button type="primary">新增监控</el-button>
+            <el-button type="danger" @click="BatchDeleteHandler"
+              >批量删除</el-button
+            >
+          </div>
         </el-col>
       </el-row>
       <el-table
@@ -66,53 +65,12 @@
 
 <script>
 // @ is an alias to /src
-import Header from "@/components/header/header.vue";
 import { getUrlList } from "@/api/url";
 export default {
-  components: {
-    Header,
-  },
+  components: {},
   data() {
     return {
-      activeIndex: "1",
-      activeIndex2: "1",
-      tableData: [
-        {
-          date: "2016-05-03",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
-        },
-        {
-          date: "2016-05-02",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
-        },
-        {
-          date: "2016-05-04",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
-        },
-        {
-          date: "2016-05-01",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
-        },
-        {
-          date: "2016-05-08",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
-        },
-        {
-          date: "2016-05-06",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
-        },
-        {
-          date: "2016-05-07",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
-        },
-      ],
+      tableData: [],
       multipleSelection: [],
       search: "",
     };
@@ -124,6 +82,19 @@ export default {
     init() {
       getUrlList().then((res) => {
         console.log(res);
+        this.tableData = res.data.result;
+      });
+    },
+    searchButton() {},
+    BatchDeleteHandler() {
+      if (this.multipleSelection.length == length) return;
+      let that = this;
+      this.$confirm("此操作将永久删除该组数据, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        // 开始删除动作
       });
     },
     handleSelect(key, keyPath) {
@@ -147,18 +118,6 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
       console.log(this.multipleSelection);
-    },
-    searchButton() {},
-    BatchDeleteHandler() {
-      if (this.multipleSelection.length == length) return;
-      let that = this;
-      this.$confirm("此操作将永久删除该组数据, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      }).then(() => {
-        // 开始删除动作
-      });
     },
   },
 };

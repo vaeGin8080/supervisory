@@ -12,7 +12,6 @@ import "@/styles/index.scss"; // global css
 // 加载相关url地址
 Object.keys(urls).forEach((key) => {
   Vue.prototype[key] = urls[key];
-  console.log(key, urls[key]);
 });
 
 // 全局过滤器
@@ -30,8 +29,8 @@ Object.keys(components).forEach((key) => {
 Vue.config.productionTip = false;
 
 //element-ui全局注册
-import Element from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+import Element from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
 Vue.use(Element);
 
 new Vue({
