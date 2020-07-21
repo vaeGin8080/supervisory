@@ -5,8 +5,8 @@
       <!-- 		<div class="operation">
 				<div style="width: 20%;">
 					<el-input v-model="search" placeholder="请输入内容"></el-input>
-				</div>
-				<div class="searchBut">
+				</el-col>
+				<el-col :span="2">
 					<el-button type="primary"
 					@click="searchButton">搜索</el-button>
 				</div>
