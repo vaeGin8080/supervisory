@@ -29,6 +29,11 @@ Object.keys(components).forEach((key) => {
 });
 Vue.config.productionTip = false;
 
+//element-ui全局注册
+import Element from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+Vue.use(Element);
+
 new Vue({
   router,
   store,
