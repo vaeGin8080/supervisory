@@ -64,111 +64,123 @@
 
 <script>
 // @ is an alias to /src
-import Header from '@/components/header/header.vue';
-
+import Header from "@/components/header/header.vue";
+import { getUrlList } from "@/api/url";
 export default {
-	components:{
-		Header
-	},
-	data(){
-		return{
-			activeIndex: '1',
-			activeIndex2: '1',
-			tableData: [{
-			          date: '2016-05-03',
-			          name: '王小虎',
-			          address: '上海市普陀区金沙江路 1518 弄'
-			        }, {
-			          date: '2016-05-02',
-			          name: '王小虎',
-			          address: '上海市普陀区金沙江路 1518 弄'
-			        }, {
-			          date: '2016-05-04',
-			          name: '王小虎',
-			          address: '上海市普陀区金沙江路 1518 弄'
-			        }, {
-			          date: '2016-05-01',
-			          name: '王小虎',
-			          address: '上海市普陀区金沙江路 1518 弄'
-			        }, {
-			          date: '2016-05-08',
-			          name: '王小虎',
-			          address: '上海市普陀区金沙江路 1518 弄'
-			        }, {
-			          date: '2016-05-06',
-			          name: '王小虎',
-			          address: '上海市普陀区金沙江路 1518 弄'
-			        }, {
-			          date: '2016-05-07',
-			          name: '王小虎',
-			          address: '上海市普陀区金沙江路 1518 弄'
-			}],
-			multipleSelection: [],
-			search:'',
-		}
-	},
-	methods:{
-		handleSelect(key, keyPath) {
-			console.log(key, keyPath);
-		},
-		handleEdit(index, row) {
-		    console.log(index, row);
-		},
-		handleDelete(index, row) {
-		   console.log(index, row);
-		},
-		 toggleSelection(rows) {
-			if (rows) {
-				rows.forEach(row => {
-					this.$refs.multipleTable.toggleRowSelection(row);
-				});
-			} else {
-				this.$refs.multipleTable.clearSelection();
-			}
-		},
-		handleSelectionChange(val) {
-		    this.multipleSelection = val;
-			console.log(this.multipleSelection);
-		},
-		searchButton(){
-			
-		},
-		BatchDeleteHandler(){
-			if(this.multipleSelection.length == length) return;
-			let that = this;
-			this.$confirm("此操作将永久删除该组数据, 是否继续?", "提示", {
-			        confirmButtonText: "确定",
-			        cancelButtonText: "取消",
-			        type: "warning"
-			})
-			.then(() => {
-			// 开始删除动作
-			
-			});
-		}
-	}
+  components: {
+    Header,
+  },
+  data() {
+    return {
+      activeIndex: "1",
+      activeIndex2: "1",
+      tableData: [
+        {
+          date: "2016-05-03",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄",
+        },
+        {
+          date: "2016-05-02",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄",
+        },
+        {
+          date: "2016-05-04",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄",
+        },
+        {
+          date: "2016-05-01",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄",
+        },
+        {
+          date: "2016-05-08",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄",
+        },
+        {
+          date: "2016-05-06",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄",
+        },
+        {
+          date: "2016-05-07",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄",
+        },
+      ],
+      multipleSelection: [],
+      search: "",
+    };
+  },
+  mounted() {
+    this.init();
+  },
+  methods: {
+    init() {
+      getUrlList().then((res) => {
+        console.log(res);
+      });
+    },
+    handleSelect(key, keyPath) {
+      console.log(key, keyPath);
+    },
+    handleEdit(index, row) {
+      console.log(index, row);
+    },
+    handleDelete(index, row) {
+      console.log(index, row);
+    },
+    toggleSelection(rows) {
+      if (rows) {
+        rows.forEach((row) => {
+          this.$refs.multipleTable.toggleRowSelection(row);
+        });
+      } else {
+        this.$refs.multipleTable.clearSelection();
+      }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+      console.log(this.multipleSelection);
+    },
+    searchButton() {},
+    BatchDeleteHandler() {
+      if (this.multipleSelection.length == length) return;
+      let that = this;
+      this.$confirm("此操作将永久删除该组数据, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        // 开始删除动作
+      });
+    },
+  },
 };
 </script>
 <style>
-	body{
-		background: #FFFFFF;
-	}
-	.el-header{
-		padding: 0 !important;
-	}
-	.el-row{
-		padding: 20px;
-		margin-bottom: 20px;
-	}
-	.operation{
-		display: flex;
-		width: 100%;
-		padding: 20px;
-		margin: 20px 0;
-		border: 1px solid #EBEEF5;
-	}
-	.searchBut{
-		width: 100px;
-		margin-right: 10px;
-	}
+body {
+  background: #ffffff;
+}
+.el-header {
+  padding: 0 !important;
+}
+.el-row {
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.operation {
+  display: flex;
+  width: 100%;
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #ebeef5;
+}
+.searchBut {
+  width: 100px;
+  margin-right: 10px;
+}
 </style>

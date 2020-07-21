@@ -1,14 +1,13 @@
 import axios from "axios";
 import { Message } from "element-ui";
 import store from "@/store";
-import { baseURL } from "@/config/env";
+
 // create an axios instance http://localhost:3333
 const service = axios.create({
-  baseURL: baseURL, // url = base url + request url
+  baseURL: process.env.VUE_APP_BASIC_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 20000, // request timeout
 });
-console.log(baseURL);
 // request interceptor
 service.interceptors.request.use(
   (config) => {
@@ -46,11 +45,7 @@ service.interceptors.response.use(
   },
   (error) => {
     console.log("err" + error); // for debug
-    Message({
-      message: error.message,
-      type: "error",
-      duration: 5 * 1000,
-    });
+
     return Promise.reject(error);
   }
 );
