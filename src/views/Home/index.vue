@@ -1,18 +1,7 @@
 <template>
-  <el-container>
+  <el-container class="wrap">
     <div class="line"></div>
     <el-main>
-      <!-- 		<div class="operation">
-				<div style="width: 20%;">
-					<el-input v-model="search" placeholder="请输入内容"></el-input>
-				</el-col>
-				<el-col :span="2">
-					<el-button type="primary"
-					@click="searchButton">搜索</el-button>
-				</div>
-				<el-button type="primary" style="float: right;">新增监控</el-button>
-				<el-button type="danger" style="float: right;">批量删除</el-button>
-			</div> -->
       <el-row style="border: 1px solid #EBEEF5;">
         <el-col :span="6">
           <el-input v-model="search" placeholder="请输入内容"></el-input>
@@ -22,7 +11,7 @@
         </el-col>
         <el-col :span="4" :offset="12">
           <div class="flex-ali">
-            <el-button type="primary">新增监控</el-button>
+            <el-button type="primary" @click="show = true">新增监控</el-button>
             <el-button type="danger" @click="BatchDeleteHandler"
               >批量删除</el-button
             >
@@ -38,34 +27,79 @@
         border
       >
         <el-table-column type="selection" width="55"> </el-table-column>
-        <el-table-column label="更新时间" width="120">
-          <template slot-scope="scope">{{ scope.row.date }}</template>
+
+        <el-table-column prop="title" label="网站名称"> </el-table-column>
+        <el-table-column prop="url" label="网站地址" show-overflow-tooltip>
         </el-table-column>
-        <el-table-column prop="name" label="站名" width="120">
+        <el-table-column prop="address" label="邮箱" show-overflow-tooltip>
         </el-table-column>
-        <el-table-column prop="address" label="地址" show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column label="操作" width="150">
+        <el-table-column label="状态" width="180">
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+            <span v-if="scope.row.status == -1">待检测 </span>
+            <span v-else-if="scope.row.status == 0"
+              >正在检测
+              <el-button icon="el-icon-loading" circle size="mini"></el-button>
+            </span>
+            <span class="success" v-else-if="scope.row.status == 1"
+              >连接通畅
+              <el-button
+                type="success"
+                icon="el-icon-check"
+                circle
+                size="mini"
+                style="margin: 0 5px;"
+              ></el-button>
+              <span>{{ scope.row.delayTime }}</span>
+            </span>
+            <span class="error" v-else>连接失败 </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="250">
+          <template slot-scope="scope">
+            <el-button size="mini" @click="handleEdit(scope.row, scope.$index)"
               >编辑</el-button
             >
             <el-button
               size="mini"
               type="danger"
-              @click="handleDelete(scope.$index, scope.row)"
+              @click="handleDelete(scope.row, scope.$index)"
               >删除</el-button
+            >
+            <el-button
+              type="success"
+              size="mini"
+              @click="handleCheck(scope.row, scope.$index)"
+              >检测</el-button
             >
           </template>
         </el-table-column>
       </el-table>
     </el-main>
+    <Dialog v-if="show" :show.sync="show">
+      <el-form ref="form" :model="form" label-width="120px">
+        <el-form-item label="网站名称：">
+          <el-input v-model="form.title"></el-input>
+        </el-form-item>
+        <el-form-item label="网站地址：">
+          <el-input v-model="form.url"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱：">
+          <el-input v-model="form.email"></el-input>
+        </el-form-item>
+        <div class="flex justify-end">
+          <el-button type="danger" @click="show = false">取消</el-button>
+          <el-button type="primary" @click="submit">{{
+            type == "add" ? "提交" : "更新"
+          }}</el-button>
+        </div>
+      </el-form>
+    </Dialog>
   </el-container>
 </template>
 
 <script>
 // @ is an alias to /src
-import { getUrlList } from "@/api/url";
+import { getUrlList, checkUrl, getUrlInsert } from "@/api/url";
 export default {
   components: {},
   data() {
@@ -73,6 +107,13 @@ export default {
       tableData: [],
       multipleSelection: [],
       search: "",
+      show: false,
+      type: "add",
+      form: {
+        title: "",
+        url: "",
+        email: "",
+      },
     };
   },
   mounted() {
@@ -81,11 +122,51 @@ export default {
   methods: {
     init() {
       getUrlList().then((res) => {
-        console.log(res);
-        this.tableData = res.data.result;
+        this.tableData = res.data.data.map((item) => {
+          item.status = -1;
+          return item;
+        });
       });
     },
     searchButton() {},
+    handleCheck(row) {
+      console.log(row);
+      row.status = 0;
+      let query = {
+        id: row.id,
+        url: row.url,
+      };
+      checkUrl(query)
+        .then((res) => {
+          console.log(res);
+          if (res.code == "200" && res.status == 1) {
+            row.status = 1;
+            row.delayTime = res.data.delayTime + res.data.unit;
+            console.log(res.data.delayTime);
+          } else {
+            row.status = -2;
+          }
+        })
+        .catch((rej) => {
+          row.status = -2;
+        });
+    },
+    submit() {
+      let query = {
+        url: this.form.url,
+        title: this.form.title,
+        email: this.form.email,
+      };
+      getUrlInsert(query)
+        .then((res) => {
+          if (res.status == 1) {
+            this.init();
+          }
+        })
+        .catch((rej) => {});
+      this.show = false;
+      this.form = {};
+    },
     BatchDeleteHandler() {
       if (this.multipleSelection.length == length) return;
       let that = this;
@@ -122,17 +203,7 @@ export default {
   },
 };
 </script>
-<style>
-body {
-  background: #ffffff;
-}
-.el-header {
-  padding: 0 !important;
-}
-.el-row {
-  padding: 20px;
-  margin-bottom: 20px;
-}
+<style lang="scss" scoped>
 .operation {
   display: flex;
   width: 100%;
