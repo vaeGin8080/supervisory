@@ -24,7 +24,7 @@ export function getapiRemove(id) {
     url: "/apiRemove",
     method: "get",
     params: {
-    	id
+      id,
     },
   });
 }
@@ -39,10 +39,11 @@ export function getapiUpdate(query) {
   });
 }
 
-// export function getapiDetail(query){
-// 	return request({
-// 		url: "/apiUpdate",
-// 		method: "get",
-// 		data: query
-// 	});
-// }
+// 检测
+export function checkApi(query) {
+  return request({
+    url: "/apiTrys",
+    method: "post",
+    data: query,
+  });
+}

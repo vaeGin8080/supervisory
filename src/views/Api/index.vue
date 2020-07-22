@@ -31,12 +31,12 @@
         <el-table-column prop="title" label="名称"> </el-table-column>
         <el-table-column prop="url" label="接口地址" show-overflow-tooltip>
         </el-table-column>
-		<el-table-column prop="methods" label="请求方式" show-overflow-tooltip>
-		</el-table-column>
+        <el-table-column prop="methods" label="请求方式" show-overflow-tooltip>
+        </el-table-column>
         <el-table-column prop="params" label="参数" show-overflow-tooltip>
         </el-table-column>
-		<el-table-column prop="email" label="邮箱" show-overflow-tooltip>
-		</el-table-column>
+        <el-table-column prop="email" label="邮箱" show-overflow-tooltip>
+        </el-table-column>
         <el-table-column label="状态" width="180">
           <template slot-scope="scope">
             <span v-if="scope.row.status == -1">待检测 </span>
@@ -87,21 +87,21 @@
         <el-form-item label="接口地址：">
           <el-input v-model="form.url"></el-input>
         </el-form-item>
-		<el-form-item label="请求方式: ">
-		    <el-select v-model="form.methods" placeholder="请求方式">
-		      <el-option label="post" value="post"></el-option>
-		      <el-option label="get" value="get"></el-option>
-		    </el-select>
-		  </el-form-item>
-		<el-form-item label="headers：">
-		  <el-input v-model="form.headers"></el-input>
-		</el-form-item>
+        <el-form-item label="请求方式: ">
+          <el-select v-model="form.methods" placeholder="请求方式">
+            <el-option label="post" value="post"></el-option>
+            <el-option label="get" value="get"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="headers：">
+          <el-input v-model="form.headers"></el-input>
+        </el-form-item>
         <el-form-item label="参数：">
           <el-input v-model="form.params"></el-input>
         </el-form-item>
-		<el-form-item label="邮箱：">
-		  <el-input v-model="form.email"></el-input>
-		</el-form-item>
+        <el-form-item label="邮箱：">
+          <el-input v-model="form.email"></el-input>
+        </el-form-item>
         <div class="flex justify-end">
           <el-button type="danger" @click="show = false">取消</el-button>
           <el-button type="primary" @click="submit">{{
@@ -114,39 +114,44 @@
 </template>
 
 <script>
-import { getUrlList, checkUrl, getUrlInsert, getUrlRemove } from "@/api/url";
-import{ getapiList, getapiInsert, getapiRemove, getapiUpdate } from "@/api/api.js"
+import {
+  getapiList,
+  checkApi,
+  getapiInsert,
+  getapiRemove,
+  getapiUpdate,
+} from "@/api/api.js";
 export default {
   components: {},
   data() {
     return {
-		tableData: [],
-		multipleSelection: [],
-		search: "",
-		show: false,
-		type: "add",
-		form: {
-			title: "",
-			url: "",
-			params: "",
-			methods: "",
-			headers: "",
-			email: "",
-			id: "",
-		},
-	};
+      tableData: [],
+      multipleSelection: [],
+      search: "",
+      show: false,
+      type: "add",
+      form: {
+        title: "",
+        url: "",
+        params: "",
+        methods: "",
+        headers: "",
+        email: "",
+        id: "",
+      },
+    };
   },
   mounted() {
     this.init();
   },
   methods: {
     init() {
-		getapiList().then((res) => {
-			this.tableData = res.data.data.map((item) => {
-				item.status = -1;
-				return item;
-			});
-		});
+      getapiList().then((res) => {
+        this.tableData = res.data.data.map((item) => {
+          item.status = -1;
+          return item;
+        });
+      });
     },
     searchButton() {},
     handleCheck(row) {
@@ -155,8 +160,10 @@ export default {
       let query = {
         id: row.id,
         url: row.url,
+        title: this.form.title,
+        email: this.form.email,
       };
-      checkUrl(query)
+      checkApi(query)
         .then((res) => {
           console.log(res);
           if (res.code == "200" && res.status == 1) {
@@ -171,89 +178,89 @@ export default {
         });
     },
     submit() {
-		let query = {
-			url: this.form.url,
-			title: this.form.title,
-			params: this.form.params,
-			methods: this.form.methods,
-			headers: this.form.headers,
-			email: this.form.email,
-			id: this.form.id,
-		};
-		console.log(!this.form.id);
-		if(!this.form.id){
-			getapiInsert(query)
-				.then((res) => {
-					if (res.status == 1) {
-						this.init();
-						this.$message({
-							message: '添加成功',
-							type: 'success'
-						});
-					}else{
-						this.$message.error('添加失败');
-					}
-			})
-			.catch((rej) => {});
-			this.show = false;
-			this.form = {};
-		}else{
-			getapiUpdate(query).then((res) => {
-				if (res.status == 1) {
-					this.init();
-					this.$message({
-						message: '修改成功',
-						type: 'success'
-					});
-				}else{
-					this.$message.error('修改失败');
-				}
-			});
-			this.show = false;
-			this.form = {};
-		}
+      let query = {
+        url: this.form.url,
+        title: this.form.title,
+        params: this.form.params,
+        methods: this.form.methods,
+        headers: this.form.headers,
+        email: this.form.email,
+        id: this.form.id,
+      };
+      console.log(!this.form.id);
+      if (!this.form.id) {
+        getapiInsert(query)
+          .then((res) => {
+            if (res.status == 1) {
+              this.init();
+              this.$message({
+                message: "添加成功",
+                type: "success",
+              });
+            } else {
+              this.$message.error("添加失败");
+            }
+          })
+          .catch((rej) => {});
+        this.show = false;
+        this.form = {};
+      } else {
+        getapiUpdate(query).then((res) => {
+          if (res.status == 1) {
+            this.init();
+            this.$message({
+              message: "修改成功",
+              type: "success",
+            });
+          } else {
+            this.$message.error("修改失败");
+          }
+        });
+        this.show = false;
+        this.form = {};
+      }
     },
-	
-	//批量审核
+
+    //批量审核
     BatchBatchTestingHandler() {
-		console.log(this.multipleSelection);
+      console.log(this.multipleSelection);
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
     },
-	
-	// 编辑
+
+    // 编辑
     handleEdit(index, row) {
-		console.log("编辑")
-		console.log(index);
-		let data = index;
-		this.show = true;
-		this.form = {
-			title: data.title,
-			url: data.url,
-			params: data.params,
-			methods: data.methods,
-			headers: data.headers,
-			email: data.email,
-			id: data.id,
-		}
+      console.log("编辑");
+      console.log(index);
+      let data = index;
+      this.show = true;
+      this.form = {
+        title: data.title,
+        url: data.url,
+        params: data.params,
+        methods: data.methods,
+        headers: data.headers,
+        email: data.email,
+        id: data.id,
+      };
     },
-	
-	// 删除
+
+    // 删除
     handleDelete(index, row) {
-		console.log(index.id);
-		let id = index.id;
-		getapiRemove(id).then((res) => {
-			if(res.status == 1){
-				this.init();
-				this.$message({
-					message: '删除成功',
-					type: 'success'
-				});
-			}else{
-				this.$message.error('删除失败');
-			}
-		});
+      console.log(index.id);
+      let id = index.id;
+      getapiRemove(id).then((res) => {
+        if (res.status == 1) {
+          this.init();
+          this.$message({
+            message: "删除成功",
+            type: "success",
+          });
+        } else {
+          this.$message.error("删除失败");
+        }
+      });
     },
     toggleSelection(rows) {
       if (rows) {
@@ -284,6 +291,6 @@ export default {
   margin-right: 10px;
 }
 .el-select {
-	width: 100%;
+  width: 100%;
 }
 </style>
