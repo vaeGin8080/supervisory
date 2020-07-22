@@ -10,11 +10,13 @@ export function getUrlList(query) {
 }
 
 // 删除
-export function getUrlRemove(query) {
+export function getUrlRemove(id) {
   return request({
     url: "/remove",
-    method: "post",
-    data: query,
+    method: "get",
+    params: {
+		id
+	},
   });
 }
 

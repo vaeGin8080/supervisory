@@ -12,8 +12,8 @@
         <el-col :span="4" :offset="12">
           <div class="flex-ali">
             <el-button type="primary" @click="show = true">新增监控</el-button>
-            <el-button type="danger" @click="BatchDeleteHandler"
-              >批量删除</el-button
+            <el-button type="danger" @click="BatchBatchTestingHandler"
+              >批量检测</el-button
             >
           </div>
         </el-col>
@@ -28,11 +28,15 @@
       >
         <el-table-column type="selection" width="55"> </el-table-column>
 
-        <el-table-column prop="title" label="网站名称"> </el-table-column>
-        <el-table-column prop="url" label="网站地址" show-overflow-tooltip>
+        <el-table-column prop="title" label="名称"> </el-table-column>
+        <el-table-column prop="url" label="接口地址" show-overflow-tooltip>
         </el-table-column>
-        <el-table-column prop="address" label="邮箱" show-overflow-tooltip>
+		<el-table-column prop="methods" label="请求方式" show-overflow-tooltip>
+		</el-table-column>
+        <el-table-column prop="params" label="参数" show-overflow-tooltip>
         </el-table-column>
+		<el-table-column prop="email" label="邮箱" show-overflow-tooltip>
+		</el-table-column>
         <el-table-column label="状态" width="180">
           <template slot-scope="scope">
             <span v-if="scope.row.status == -1">待检测 </span>
@@ -77,15 +81,27 @@
     </el-main>
     <Dialog v-if="show" :show.sync="show">
       <el-form ref="form" :model="form" label-width="120px">
-        <el-form-item label="网站名称：">
+        <el-form-item label="名称：">
           <el-input v-model="form.title"></el-input>
         </el-form-item>
-        <el-form-item label="网站地址：">
+        <el-form-item label="接口地址：">
           <el-input v-model="form.url"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱：">
-          <el-input v-model="form.email"></el-input>
+		<el-form-item label="请求方式: ">
+		    <el-select v-model="form.methods" placeholder="请求方式">
+		      <el-option label="post" value="post"></el-option>
+		      <el-option label="get" value="get"></el-option>
+		    </el-select>
+		  </el-form-item>
+		<el-form-item label="headers：">
+		  <el-input v-model="form.headers"></el-input>
+		</el-form-item>
+        <el-form-item label="参数：">
+          <el-input v-model="form.params"></el-input>
         </el-form-item>
+		<el-form-item label="邮箱：">
+		  <el-input v-model="form.email"></el-input>
+		</el-form-item>
         <div class="flex justify-end">
           <el-button type="danger" @click="show = false">取消</el-button>
           <el-button type="primary" @click="submit">{{
@@ -99,34 +115,39 @@
 
 <script>
 // @ is an alias to /src
-import { getUrlList, checkUrl, getUrlInsert } from "@/api/url";
+import { getUrlList, checkUrl, getUrlInsert, getUrlRemove } from "@/api/url";
+import{ getapiList, getapiInsert, getapiRemove, getapiUpdate } from "@/api/api.js"
 export default {
   components: {},
   data() {
     return {
-      tableData: [],
-      multipleSelection: [],
-      search: "",
-      show: false,
-      type: "add",
-      form: {
-        title: "",
-        url: "",
-        email: "",
-      },
-    };
+		tableData: [],
+		multipleSelection: [],
+		search: "",
+		show: false,
+		type: "add",
+		form: {
+			title: "",
+			url: "",
+			params: "",
+			methods: "",
+			headers: "",
+			email: "",
+			id: "",
+		},
+	};
   },
   mounted() {
     this.init();
   },
   methods: {
     init() {
-      getUrlList().then((res) => {
-        this.tableData = res.data.data.map((item) => {
-          item.status = -1;
-          return item;
-        });
-      });
+		getapiList().then((res) => {
+			this.tableData = res.data.data.map((item) => {
+				item.status = -1;
+				return item;
+			});
+		});
     },
     searchButton() {},
     handleCheck(row) {
@@ -142,7 +163,6 @@ export default {
           if (res.code == "200" && res.status == 1) {
             row.status = 1;
             row.delayTime = res.data.delayTime + res.data.unit;
-            console.log(res.data.delayTime);
           } else {
             row.status = -2;
           }
@@ -152,40 +172,89 @@ export default {
         });
     },
     submit() {
-      let query = {
-        url: this.form.url,
-        title: this.form.title,
-        email: this.form.email,
-      };
-      getUrlInsert(query)
-        .then((res) => {
-          if (res.status == 1) {
-            this.init();
-          }
-        })
-        .catch((rej) => {});
-      this.show = false;
-      this.form = {};
+		let query = {
+			url: this.form.url,
+			title: this.form.title,
+			params: this.form.params,
+			methods: this.form.methods,
+			headers: this.form.headers,
+			email: this.form.email,
+			id: this.form.id,
+		};
+		console.log(!this.form.id);
+		if(!this.form.id){
+			getapiInsert(query)
+				.then((res) => {
+					if (res.status == 1) {
+						this.init();
+						this.$message({
+							message: '添加成功',
+							type: 'success'
+						});
+					}else{
+						this.$message.error('添加失败');
+					}
+			})
+			.catch((rej) => {});
+			this.show = false;
+			this.form = {};
+		}else{
+			getapiUpdate(query).then((res) => {
+				if (res.status == 1) {
+					this.init();
+					this.$message({
+						message: '修改成功',
+						type: 'success'
+					});
+				}else{
+					this.$message.error('修改失败');
+				}
+			});
+			this.show = false;
+			this.form = {};
+		}
     },
-    BatchDeleteHandler() {
-      if (this.multipleSelection.length == length) return;
-      let that = this;
-      this.$confirm("此操作将永久删除该组数据, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      }).then(() => {
-        // 开始删除动作
-      });
+	
+	//批量审核
+    BatchBatchTestingHandler() {
+		console.log(this.multipleSelection);
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
     },
+	
+	// 编辑
     handleEdit(index, row) {
-      console.log(index, row);
+		console.log("编辑")
+		console.log(index);
+		let data = index;
+		this.show = true;
+		this.form = {
+			title: data.title,
+			url: data.url,
+			params: data.params,
+			methods: data.methods,
+			headers: data.headers,
+			email: data.email,
+			id: data.id,
+		}
     },
+	
+	// 删除
     handleDelete(index, row) {
-      console.log(index, row);
+		console.log(index.id);
+		let id = index.id;
+		getapiRemove(id).then((res) => {
+			if(res.status == 1){
+				this.init();
+				this.$message({
+					message: '删除成功',
+					type: 'success'
+				});
+			}else{
+				this.$message.error('删除失败');
+			}
+		});
     },
     toggleSelection(rows) {
       if (rows) {
@@ -214,5 +283,8 @@ export default {
 .searchBut {
   width: 100px;
   margin-right: 10px;
+}
+.el-select {
+	width: 100%;
 }
 </style>
