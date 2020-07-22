@@ -11,15 +11,24 @@ const routes = [
     redirect: "/home",
     component: Layout,
     children: [
-      {
-        path: "home",
-        name: "index",
-        meta: {
-          title: "首页",
-        },
-        component: () =>
-          import(/* webpackChunkName: "about" */ "../views/Home/index.vue"),
-      },
+		{
+			path: "home",
+			name: "index",
+			meta: {
+			  title: "首页",
+			},
+			component: () =>
+				import(/* webpackChunkName: "about" */ "../views/Home/index.vue"),
+		},
+		{
+			path: "home/api",
+			name: "apiList",
+			meta: {
+				title: "API列表"
+			},
+			component: () =>
+				import("../views/Home/apiList.vue"),
+		}
     ],
   },
   // {

@@ -1,6 +1,7 @@
 import request from "@/utils/request";
 
 // url列表
+
 export function getUrlList(query) {
   return request({
     url: "/list",
@@ -8,8 +9,8 @@ export function getUrlList(query) {
     data: query,
   });
 }
-
 // 新增
+
 export function getUrlInsert(query) {
   return request({
     url: "/insert",
@@ -19,6 +20,7 @@ export function getUrlInsert(query) {
 }
 
 // 编辑
+
 export function getUrlUpdate(query) {
   return request({
     url: "/update",
@@ -28,6 +30,7 @@ export function getUrlUpdate(query) {
 }
 
 // 删除
+
 export function getUrlDelete(params) {
   return request({
     url: "/remove",
@@ -37,6 +40,7 @@ export function getUrlDelete(params) {
 }
 
 // 检测网站连通性
+
 export function checkUrl(query) {
   return request({
     url: "/trys",
