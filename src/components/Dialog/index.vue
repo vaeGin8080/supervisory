@@ -39,6 +39,7 @@ export default {
   methods: {
     close() {
       this.openCardDialog = false;
+      this.$emit('close')
     },
   },
 };

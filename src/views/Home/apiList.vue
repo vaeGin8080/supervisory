@@ -114,7 +114,6 @@
 </template>
 
 <script>
-// @ is an alias to /src
 import { getUrlList, checkUrl, getUrlInsert, getUrlRemove } from "@/api/url";
 import{ getapiList, getapiInsert, getapiRemove, getapiUpdate } from "@/api/api.js"
 export default {
