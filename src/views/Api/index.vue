@@ -12,7 +12,7 @@
         <el-col :span="4" :offset="12">
           <div class="flex-ali">
             <el-button type="primary" @click="show = true">新增监控</el-button>
-            <el-button type="danger" @click="BatchBatchTestingHandler"
+            <el-button type="success" @click="handleMultapie"
               >批量检测</el-button
             >
           </div>
@@ -72,14 +72,14 @@
             <el-button
               type="success"
               size="mini"
-              @click="handleCheck(scope.row, scope.$index)"
+              @click="handleCheck(scope.row)"
               >检测</el-button
             >
           </template>
         </el-table-column>
       </el-table>
     </el-main>
-    <Dialog v-if="show" :show.sync="show">
+    <Dialog v-if="show" :show.sync="show" @close="close">
       <el-form ref="form" :model="form" label-width="120px">
         <el-form-item label="名称：">
           <el-input v-model="form.title"></el-input>
@@ -139,6 +139,7 @@ export default {
         email: "",
         id: "",
       },
+      count: 0,
     };
   },
   mounted() {
@@ -154,28 +155,56 @@ export default {
       });
     },
     searchButton() {},
-    handleCheck(row) {
-      console.log(row);
+    handleCheck(row, count) {
+      /**
+       * 如果有count，就是递归检测
+       *  */
+      if (typeof count == "number") {
+        row = this.multipleSelection[count];
+      }
       row.status = 0;
       let query = {
         id: row.id,
         url: row.url,
-        title: this.form.title,
-        email: this.form.email,
+        title: row.title,
+        email: row.email,
       };
       checkApi(query)
         .then((res) => {
-          console.log(res);
           if (res.code == "200" && res.status == 1) {
             row.status = 1;
             row.delayTime = res.data.delayTime + res.data.unit;
           } else {
             row.status = -2;
           }
+          if (count < this.multipleSelection.length - 1) {
+            this.handleCheck(row, ++this.count);
+          }
         })
         .catch((rej) => {
           row.status = -2;
         });
+    },
+    // 批量检测
+    handleMultapie() {
+      if (this.multipleSelection.length <= 0) {
+        this.$message.error("请先选择需要检查的网站");
+        return;
+      }
+      /**
+       * 检测之前清楚count和需要检测的状态
+       *  */
+      this.multipleSelection = this.multipleSelection.map((item) => {
+        item.status = -1;
+        return item;
+      });
+      this.count = 0;
+      this.handleCheck(this.multipleSelection, this.count);
+    },
+    close() {
+      this.show = false;
+      this.$refs["ruleForm"].resetFields();
+      this.form = {};
     },
     submit() {
       let query = {
