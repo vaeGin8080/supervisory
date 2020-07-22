@@ -168,6 +168,9 @@ export default {
         url: row.url,
         title: row.title,
         email: row.email,
+        params: row.params,
+        methods: row.methods,
+        headers: row.headers,
       };
       checkApi(query)
         .then((res) => {
