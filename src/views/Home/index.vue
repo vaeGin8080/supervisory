@@ -159,6 +159,8 @@ export default {
       let query = {
         id: row.id,
         url: row.url,
+        title: row.title,
+        email: row.email,
       };
       checkUrl(query)
         .then((res) => {
