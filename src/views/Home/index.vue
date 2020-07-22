@@ -2,18 +2,28 @@
   <el-container class="wrap">
     <div class="line"></div>
     <el-main>
-      <el-row style="border: 1px solid #EBEEF5;">
+      <el-row style="border: 1px solid #EBEEF5;" class="flex justify-between">
         <el-col :span="6">
           <el-input v-model="search" placeholder="请输入内容"></el-input>
         </el-col>
         <el-col :span="2">
           <el-button type="primary" @click="searchButton">搜索</el-button>
         </el-col>
-        <el-col :span="4" :offset="12">
-          <div class="flex-ali">
-            <el-button type="primary" @click="show = true">新增监控</el-button>
-            <el-button type="danger" @click="BatchDeleteHandler"
+        <el-col>
+          <div class="flex justify-end">
+            <el-button
+              type="primary"
+              @click="
+                show = true;
+                type = 'add';
+              "
+              >新增监控</el-button
+            >
+            <!-- <el-button type="danger" @click="BatchDeleteHandler"
               >批量删除</el-button
+            > -->
+            <el-button type="success" @click="handleMultapie"
+              >批量检测</el-button
             >
           </div>
         </el-col>
@@ -68,15 +78,15 @@
             <el-button
               type="success"
               size="mini"
-              @click="handleCheck(scope.row, scope.$index)"
+              @click="handleCheck(scope.row)"
               >检测</el-button
             >
           </template>
         </el-table-column>
       </el-table>
     </el-main>
-    <Dialog v-if="show" :show.sync="show">
-      <el-form ref="form" :model="form" label-width="120px">
+    <Dialog v-if="show" :show.sync="show" @close="close">
+      <el-form ref="ruleForm" :model="form" label-width="120px">
         <el-form-item label="网站名称：">
           <el-input v-model="form.title"></el-input>
         </el-form-item>
@@ -87,7 +97,7 @@
           <el-input v-model="form.email"></el-input>
         </el-form-item>
         <div class="flex justify-end">
-          <el-button type="danger" @click="show = false">取消</el-button>
+          <el-button type="danger" @click="close">取消</el-button>
           <el-button type="primary" @click="submit">{{
             type == "add" ? "提交" : "更新"
           }}</el-button>
@@ -99,7 +109,13 @@
 
 <script>
 // @ is an alias to /src
-import { getUrlList, checkUrl, getUrlInsert } from "@/api/url";
+import {
+  getUrlList,
+  checkUrl,
+  getUrlInsert,
+  getUrlUpdate,
+  getUrlDelete,
+} from "@/api/url";
 export default {
   components: {},
   data() {
@@ -114,12 +130,14 @@ export default {
         url: "",
         email: "",
       },
+      count: 0,
     };
   },
-  mounted() {
+  created() {
     this.init();
   },
   methods: {
+    // 初始化请求数据
     init() {
       getUrlList().then((res) => {
         this.tableData = res.data.data.map((item) => {
@@ -129,8 +147,14 @@ export default {
       });
     },
     searchButton() {},
-    handleCheck(row) {
-      console.log(row);
+    // 检测
+    handleCheck(row, count) {
+      /**
+       * 如果有count，就是递归检测
+       *  */
+      if (typeof count == "number") {
+        row = this.multipleSelection[count];
+      }
       row.status = 0;
       let query = {
         id: row.id,
@@ -138,67 +162,112 @@ export default {
       };
       checkUrl(query)
         .then((res) => {
-          console.log(res);
           if (res.code == "200" && res.status == 1) {
             row.status = 1;
             row.delayTime = res.data.delayTime + res.data.unit;
-            console.log(res.data.delayTime);
           } else {
             row.status = -2;
+          }
+          if (count < this.multipleSelection.length - 1) {
+            this.handleCheck(row, ++this.count);
           }
         })
         .catch((rej) => {
           row.status = -2;
         });
     },
+    // 批量检测
+    handleMultapie() {
+      if (this.multipleSelection.length <= 0) {
+        this.$message.error("请先选择需要检查的网站");
+        return;
+      }
+      /**
+       * 检测之前清楚count和需要检测的状态
+       *  */
+      this.multipleSelection = this.multipleSelection.map((item) => {
+        item.status = -1;
+        return item;
+      });
+      this.count = 0;
+      this.handleCheck(this.multipleSelection, this.count);
+    },
+    close() {
+      this.show = false;
+      this.$refs["ruleForm"].resetFields();
+      this.form = {};
+    },
+    // 提交
     submit() {
+      let type = this.type;
       let query = {
+        id: this.form.id,
         url: this.form.url,
         title: this.form.title,
         email: this.form.email,
       };
-      getUrlInsert(query)
-        .then((res) => {
-          if (res.status == 1) {
-            this.init();
-          }
-        })
-        .catch((rej) => {});
+      if (type == "add") {
+        getUrlInsert(query)
+          .then((res) => {
+            console.log(1);
+            if (res.status == 1) {
+              this.$message.success("新增成功");
+              this.init();
+            }
+          })
+          .catch((rej) => {});
+      } else {
+        getUrlUpdate(query)
+          .then((res) => {
+            if (res.status == 1) {
+              this.$message.success("更新成功");
+              this.init();
+            }
+          })
+          .catch((rej) => {});
+      }
+
       this.show = false;
       this.form = {};
+      console.log(2);
     },
+    // 批量删除
     BatchDeleteHandler() {
       if (this.multipleSelection.length == length) return;
       let that = this;
-      this.$confirm("此操作将永久删除该组数据, 是否继续?", "提示", {
+    },
+    // 删除
+    handleDelete(row, index) {
+      let self = this;
+      this.$confirm("是否删除?", "", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       }).then(() => {
         // 开始删除动作
+        let query = {
+          id: row.id,
+        };
+        getUrlDelete(query).then((res) => {
+          if (res.status == 1) {
+            this.$message.success("删除成功");
+            self.tableData = self.tableData.filter((item) => item.id != row.id);
+          } else {
+            this.$message.error(res.message);
+          }
+        });
       });
     },
-    handleSelect(key, keyPath) {
-      console.log(key, keyPath);
+    // 编辑
+    handleEdit(row, index) {
+      this.show = true;
+      this.type = "edit";
+      this.form = { ...row };
     },
-    handleEdit(index, row) {
-      console.log(index, row);
-    },
-    handleDelete(index, row) {
-      console.log(index, row);
-    },
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach((row) => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
+    // 选择表格项
     handleSelectionChange(val) {
       this.multipleSelection = val;
-      console.log(this.multipleSelection);
+      // console.log(this.multipleSelection);
     },
   },
 };
