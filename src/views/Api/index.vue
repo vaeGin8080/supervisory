@@ -160,8 +160,6 @@ export default {
       let query = {
         id: row.id,
         url: row.url,
-        title: this.form.title,
-        email: this.form.email,
       };
       checkApi(query)
         .then((res) => {
