@@ -30,9 +30,10 @@
 				clearInterval(this.timer)    
 			}else{      
 				this.timer = setInterval(()=>{
+					this.list = [];
 				 // 调用相应的接口，渲染数据        
 					this.init();
-				},30000)//三分钟刷新一次
+				},10000)//三分钟刷新一次
 			}  
 		},
 		methods:{
