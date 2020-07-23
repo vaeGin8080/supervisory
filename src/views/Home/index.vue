@@ -231,7 +231,6 @@ export default {
 
       this.show = false;
       this.form = {};
-      console.log(2);
     },
     // 批量删除
     BatchDeleteHandler() {

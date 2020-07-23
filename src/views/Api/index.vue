@@ -72,7 +72,7 @@
             <el-button
               type="success"
               size="mini"
-              @click="handleCheck(scope.row, scope.$index)"
+              @click="handleCheck(scope.row)"
               >检测</el-button
             >
           </template>
@@ -103,7 +103,7 @@
           <el-input v-model="form.email"></el-input>
         </el-form-item>
         <div class="flex justify-end">
-          <el-button type="danger" @click="show = false">取消</el-button>
+          <el-button type="danger" @click="close">取消</el-button>
           <el-button type="primary" @click="submit">{{
             type == "add" ? "提交" : "更新"
           }}</el-button>
@@ -196,7 +196,6 @@ export default {
 			email: this.form.email,
 			id: this.form.id,
 		};
-      console.log(!this.form.id);
       if (type == "add") {
         getapiInsert(query)
           .then((res) => {
@@ -219,7 +218,8 @@ export default {
               message: "修改成功",
               type: "success",
             });
-          } 
+          }
+		  
         })
 		.catch((rej) => {});
       }
@@ -227,10 +227,11 @@ export default {
 	  this.form = {};
     },
 
-    //批量审核
+    //批量检测
     BatchBatchTestingHandler() {
 		if(this.multipleSelection.length <= 0){
 			this.$message.error("请选择你要检测的接口");
+			return;
 		}
 		
 		this.multipleSelection = this.multipleSelection.map((item) => {
@@ -248,34 +249,33 @@ export default {
     handleEdit(index, row) {
       console.log("编辑");
       console.log(index);
+	  this.type = "edit"
       let data = index;
       this.show = true;
-      this.form = {
-        title: data.title,
-        url: data.url,
-        params: data.params,
-        methods: data.methods,
-        headers: data.headers,
-        email: data.email,
-        id: data.id,
-      };
+      this.form = { ...index };
     },
 
     // 删除
     handleDelete(index, row) {
-      console.log(index.id);
-      let id = index.id;
-      getapiRemove(id).then((res) => {
-        if (res.status == 1) {
-          this.init();
-          this.$message({
-            message: "删除成功",
-            type: "success",
-          });
-        } else {
-          this.$message.error("删除失败");
-        }
-      });
+		console.log(index.id);
+		let id = index.id;
+		this.$confirm("是否删除?", "", {
+			confirmButtonText: "确定",
+			cancelButtonText: "取消",
+			type: "warning",
+		}).then(() => {
+			getapiRemove(id).then((res) => {
+			  if (res.status == 1) {
+			    this.init();
+			    this.$message({
+			      message: "删除成功",
+			      type: "success",
+			    });
+			  } else {
+			    this.$message.error("删除失败");
+			  }
+			});
+		});
     },
     toggleSelection(rows) {
       if (rows) {
@@ -290,6 +290,11 @@ export default {
       this.multipleSelection = val;
       console.log(this.multipleSelection);
     },
+	close(){
+		this.show = false;
+		this.$refs["ruleForm"].resetFields();
+		this.form = {};
+	}
   },
 };
 </script>
