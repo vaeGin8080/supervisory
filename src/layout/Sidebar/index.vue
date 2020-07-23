@@ -8,7 +8,9 @@
     router
   >
     <el-submenu index="1">
-      <template slot="title"><i class="el-icon-message"></i>网站列表</template>
+      <template slot="title"
+        ><i class="el-icon-s-promotion"></i>网站列表</template
+      >
       <el-menu-item-group>
         <el-menu-item index="/home">网址列表</el-menu-item>
         <el-menu-item index="/home/api">API列表</el-menu-item>

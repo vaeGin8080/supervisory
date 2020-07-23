@@ -11,8 +11,16 @@
         </el-col>
         <el-col :span="4" :offset="12">
           <div class="flex-ali">
-            <el-button type="primary" @click="show = true">新增监控</el-button>
-            <el-button type="success" @click="handleMultapie"
+            <el-button
+              type="primary"
+              @click="
+                show = true;
+                type = 'add';
+              "
+              >新增监控</el-button
+            >
+
+            <el-button type="success" @click="BatchBatchTestingHandler"
               >批量检测</el-button
             >
           </div>
@@ -80,7 +88,7 @@
       </el-table>
     </el-main>
     <Dialog v-if="show" :show.sync="show" @close="close">
-      <el-form ref="form" :model="form" label-width="120px">
+      <el-form ref="ruleForm" :model="form" label-width="120px">
         <el-form-item label="名称：">
           <el-input v-model="form.title"></el-input>
         </el-form-item>
@@ -156,9 +164,6 @@ export default {
     },
     searchButton() {},
     handleCheck(row, count) {
-      /**
-       * 如果有count，就是递归检测
-       *  */
       if (typeof count == "number") {
         row = this.multipleSelection[count];
       }
@@ -169,11 +174,10 @@ export default {
         title: row.title,
         email: row.email,
         params: row.params,
-        methods: row.methods,
-        headers: row.headers,
       };
       checkApi(query)
         .then((res) => {
+          console.log(res);
           if (res.code == "200" && res.status == 1) {
             row.status = 1;
             row.delayTime = res.data.delayTime + res.data.unit;
@@ -210,6 +214,7 @@ export default {
       this.form = {};
     },
     submit() {
+      let type = this.type;
       let query = {
         url: this.form.url,
         title: this.form.title,
@@ -220,7 +225,7 @@ export default {
         id: this.form.id,
       };
       console.log(!this.form.id);
-      if (!this.form.id) {
+      if (type == "add") {
         getapiInsert(query)
           .then((res) => {
             if (res.status == 1) {
@@ -234,28 +239,35 @@ export default {
             }
           })
           .catch((rej) => {});
-        this.show = false;
-        this.form = {};
       } else {
-        getapiUpdate(query).then((res) => {
-          if (res.status == 1) {
-            this.init();
-            this.$message({
-              message: "修改成功",
-              type: "success",
-            });
-          } else {
-            this.$message.error("修改失败");
-          }
-        });
-        this.show = false;
-        this.form = {};
+        getapiUpdate(query)
+          .then((res) => {
+            if (res.status == 1) {
+              this.init();
+              this.$message({
+                message: "修改成功",
+                type: "success",
+              });
+            }
+          })
+          .catch((rej) => {});
       }
+      this.show = false;
+      this.form = {};
     },
 
     //批量审核
     BatchBatchTestingHandler() {
-      console.log(this.multipleSelection);
+      if (this.multipleSelection.length <= 0) {
+        this.$message.error("请选择你要检测的接口");
+      }
+
+      this.multipleSelection = this.multipleSelection.map((item) => {
+        item.status = -1;
+        return item;
+      });
+      this.count = 0;
+      this.handleCheck(this.multipleSelection, this.count);
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
@@ -264,7 +276,6 @@ export default {
     // 编辑
     handleEdit(index, row) {
       console.log("编辑");
-      console.log(index);
       let data = index;
       this.show = true;
       this.form = {

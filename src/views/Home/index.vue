@@ -4,10 +4,14 @@
     <el-main>
       <el-row style="border: 1px solid #EBEEF5;" class="flex justify-between">
         <el-col :span="6">
-          <el-input v-model="search" placeholder="请输入内容"></el-input>
+          <el-input
+            v-model="title"
+            placeholder="请输入内容"
+            @keydown.enter.native="init"
+          ></el-input>
         </el-col>
         <el-col :span="2">
-          <el-button type="primary" @click="searchButton">搜索</el-button>
+          <el-button type="primary" @click="init">搜索</el-button>
         </el-col>
         <el-col>
           <div class="flex justify-end">
@@ -84,6 +88,15 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="flex justify-end">
+        <pagination
+          v-show="total > 0"
+          :total="total"
+          :page.sync="listQuery.page"
+          :limit.sync="listQuery.limit"
+          @pagination="init"
+        />
+      </div>
     </el-main>
     <Dialog v-if="show" :show.sync="show" @close="close">
       <el-form ref="ruleForm" :model="form" label-width="120px">
@@ -120,6 +133,7 @@ export default {
   components: {},
   data() {
     return {
+      title: "",
       tableData: [],
       multipleSelection: [],
       search: "",
@@ -131,6 +145,11 @@ export default {
         email: "",
       },
       count: 0,
+      total: 0,
+      listQuery: {
+        page: 1,
+        limit: 10,
+      },
     };
   },
   created() {
@@ -139,11 +158,17 @@ export default {
   methods: {
     // 初始化请求数据
     init() {
-      getUrlList().then((res) => {
+      let query = {
+        title: this.title,
+        page: this.listQuery.page,
+        pageSize: this.listQuery.limit,
+      };
+      getUrlList(query).then((res) => {
         this.tableData = res.data.data.map((item) => {
           item.status = -1;
           return item;
         });
+        this.total = res.data.page.total;
       });
     },
     searchButton() {},
