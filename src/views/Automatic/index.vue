@@ -1,142 +1,166 @@
 <template>
-	<ul class="list">
-		<li v-for="item in multipleSelection" class="item">
-			<p>{{item.title}}</p>
-			<p>{{item.url}}</p>
-			<i v-if="item.status == 1" class="el-icon-success success"></i>
-			<i v-if="item.status == 0" class="el-icon-loading loading"></i>
-			<i v-if="item.status == -2" class="el-icon-error error"></i>
-		</li>
-	</ul>
+  <div class="wrap">
+    <div class="header flex justify-between">
+      <el-button type="info">返回</el-button>
+      <el-button type="success">重新检测</el-button>
+    </div>
+    <ul class="list">
+      <li
+        v-for="(item, index) in tableData"
+        :style="[{ animationDelay: (index + 1) * 0.1 + 's' }]"
+        :class="[count == index ? 'animation-shake' : '']"
+        class="item"
+        :key="index"
+      >
+        <p>{{ item.title }}</p>
+        <p>
+          <a :href="item.url" target="_blank">{{ item.url }}</a>
+        </p>
+        <i v-if="item.status == 1" class="el-icon-success success"></i>
+        <i v-if="item.status == -1" class="el-icon-loading loading"></i>
+        <i v-if="item.status == -2" class="el-icon-error error"></i>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
-	import {
-	  getUrlList,
-	  checkUrl,
-	} from "@/api/url";
-	export default{
-		data(){
-			return{
-				timer: 0,
-				list:[],
-				multipleSelection:[],
-				count: 0,
-			}
-		},
-		mounted() {
-			this.init();
-			if(this.timer){      
-				clearInterval(this.timer)    
-			}else{      
-				this.timer = setInterval(()=>{
-					this.list = [];
-				 // 调用相应的接口，渲染数据        
-					this.init();
-				},10000)//三分钟刷新一次
-			}  
-		},
-		methods:{
-			init(){
-				this.multipleSelection = [];
-				let that = this;
-				getUrlList().then((res) => {
-					console.log(res);
-					res.data.data.map((item) => {
-						item.status = -1;
-						that.list.push(item);
-					});
-					this.count = 0;
-					this.testing(this.count);
-				});
-			},
-			testing(count){
-				console.log(count);
-				let item;
-				if (typeof count == "number") {
-					item = this.list[count];
-					this.multipleSelection.push(this.list[count]);
-					console.log(this.list.length)
-				}
-				item.status = 0;
-				console.log(item);
-				let query = {
-				  id: item.id,
-				  url: item.url,
-				  title: item.title,
-				  email: item.email,
-				};
-				checkUrl(query)
-				  .then((res) => {
-				    if (res.code == "200" && res.status == 1) {
-				      item.status = 1;
-				      item.delayTime = res.data.delayTime + res.data.unit;
-				    } else {
-				      item.status = -2;
-				    }
-					if (count < this.list.length - 1) {
-					  this.testing(++this.count);
-					}
-				  })
-				  .catch((rej) => {
-				    item.status = -2;
-				  });
-			}
-		},
-		destroyed(){    
-		    clearInterval(this.timer)  
-		},
-	}
+import { getUrlList, checkUrl } from "@/api/url";
+export default {
+  data() {
+    return {
+      timer: null,
+      tableData: [],
+      count: 0,
+    };
+  },
+  mounted() {
+    this.init();
+    if (this.timer) {
+      clearInterval(this.timer);
+    } else {
+      this.timer = setInterval(() => {
+        this.count = 0,
+        this.testing(this.count);
+      }, 500000); //5分钟刷新一次
+    }
+  },
+  methods: {
+    init() {
+      let that = this;
+      getUrlList().then((res) => {
+        this.tableData = res.data.data.map((item) => {
+          item.status = -1;
+          return item;
+        });
+        this.testing(this.count);
+      });
+    },
+    testing(count) {
+      let item = this.tableData[count];
+      let query = {
+        id: item.id,
+        url: item.url,
+        title: item.title,
+        email: item.email,
+      };
+      checkUrl(query)
+        .then((res) => {
+          if (res.code == "200" && res.status == 1) {
+            item.status = 1;
+            item.delayTime = res.data.delayTime + res.data.unit;
+          } else {
+            item.status = -2;
+          }
+          if (count < this.tableData.length - 1) {
+            setTimeout(() => {
+              this.count++;
+              this.testing(++count);
+            }, 500);
+          } else if (count >= this.tableData.length) {
+            this.count = 0;
+          }
+          console.log(this.count);
+        })
+        .catch((rej) => {
+          item.status = -2;
+          if (count < this.tableData.length - 1) {
+            this.count++;
+            this.testing(++count);
+          } else if (count >= this.tableData.length) {
+            this.count = 0;
+          }
+        });
+    },
+  },
+  destroyed() {
+    clearInterval(this.timer);
+  },
+};
 </script>
 
-<style>
-	html{
-		background: #FFFFFF;
-	}
-	.list{
-		width: 90%;
-		height: 100%;
-		margin: 0 auto;
-		/* display: flex;
-		list-style-type: none;
-		justify-content: space-between;
-		flex-wrap: wrap; */
-	}
-	.item{
-		float: left;
-		width: 300px;
-		height: 300px;
-		margin: 15px;
-		background: #FFFFFF;
-		border-radius: 20px;
-		border: 1px solid #13CE66;
-		padding: 50px;
-	}
-	.item .success{
-		margin: 0 auto;
-		font-size: 100px;
-		color: #67C23A;
-	}
-	.item .error{
-		margin: 0 auto;
-		font-size: 100px;
-		color: #F56C6C;
-	}
-	.item .loading{
-		margin: 0 auto;
-		font-size: 100px;
-		color: #909399;
-	}
-	.item p{
-		width: 100%;
-		font-size: 16px;
-		font-family: PingFangSC, PingFangSC-Semibold;
-		font-weight: 600;
-		text-align: center;
-		color: #333333;
-		line-height: 30px;
-		text-overflow:ellipsis;
-		white-space:nowrap;
-		overflow:hidden;
-	}
+<style lang="scss" scoped>
+@import "../../styles/animate.scss";
+.wrap {
+  background: #333;
+  .header {
+    padding: 10px;
+  }
+}
+.list {
+  width: 100%;
+  padding: 20px;
+  background: #333;
+  display: flex;
+  list-style-type: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+}
+.item {
+  width: 23%;
+  height: 300px;
+  margin: 10px 0;
+  border-radius: 20px;
+  border: 5px solid #fff;
+  background: Linear-gradient(
+    rgba(52, 161, 184, 0.3),
+    rgba(4, 207, 228, 0.5),
+    rgba(52, 161, 184, 1)
+  );
+  box-shadow: 2px 2px 4px 2px #fff;
+  padding: 50px;
+  margin: 0 1% 2%;
+  &:hover {
+  }
+}
+.item .success {
+  margin: 0 auto;
+  font-size: 100px;
+  color: #67c23a;
+}
+.item .error {
+  margin: 0 auto;
+  font-size: 100px;
+  color: #f56c6c;
+}
+.item .loading {
+  margin: 20px auto;
+  font-size: 50px;
+  color: #fff;
+}
+.item p {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
+  line-height: 30px;
+  width: 100%;
+  @include text-overflow();
+  a {
+    width: 100%;
+    word-wrap: break-all;
+  }
+  cursor: pointer;
+}
 </style>
