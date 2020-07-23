@@ -2,15 +2,19 @@
   <el-container class="wrap">
     <div class="line"></div>
     <el-main>
-      <el-row style="border: 1px solid #EBEEF5;">
+      <el-row style="border: 1px solid #EBEEF5;" class="flex justify-between">
         <el-col :span="6">
-          <el-input v-model="search" placeholder="请输入内容"></el-input>
+          <el-input
+            v-model="search"
+            placeholder="请输入内容"
+            @keydown.enter.native="init"
+          ></el-input>
         </el-col>
         <el-col :span="2">
-          <el-button type="primary" @click="searchButton">搜索</el-button>
+          <el-button type="primary" @click="init">搜索</el-button>
         </el-col>
-        <el-col :span="4" :offset="12">
-          <div class="flex-ali">
+        <el-col>
+          <div class="flex justify-end">
             <el-button
               type="primary"
               @click="
@@ -19,7 +23,6 @@
               "
               >新增监控</el-button
             >
-
             <el-button type="success" @click="BatchBatchTestingHandler"
               >批量检测</el-button
             >
@@ -86,8 +89,17 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="flex justify-end">
+        <pagination
+          v-show="total > 0"
+          :total="total"
+          :page.sync="listQuery.page"
+          :limit.sync="listQuery.limit"
+          @pagination="init"
+        />
+      </div>
     </el-main>
-    <Dialog v-if="show" :show.sync="show" @close="close">
+    <Dialog v-if="show" :show.sync="show">
       <el-form ref="ruleForm" :model="form" label-width="120px">
         <el-form-item label="名称：">
           <el-input v-model="form.title"></el-input>
@@ -111,7 +123,7 @@
           <el-input v-model="form.email"></el-input>
         </el-form-item>
         <div class="flex justify-end">
-          <el-button type="danger" @click="show = false">取消</el-button>
+          <el-button type="danger" @click="close">取消</el-button>
           <el-button type="primary" @click="submit">{{
             type == "add" ? "提交" : "更新"
           }}</el-button>
@@ -148,6 +160,11 @@ export default {
         id: "",
       },
       count: 0,
+      total: 0,
+      listQuery: {
+        page: 1,
+        limit: 10,
+      },
     };
   },
   mounted() {
@@ -155,11 +172,17 @@ export default {
   },
   methods: {
     init() {
-      getapiList().then((res) => {
+      let query = {
+        title: this.search,
+        page: this.listQuery.page,
+        pageSize: this.listQuery.limit,
+      };
+      getapiList(query).then((res) => {
         this.tableData = res.data.data.map((item) => {
           item.status = -1;
           return item;
         });
+        this.total = res.data.page.total;
       });
     },
     searchButton() {},
@@ -192,27 +215,6 @@ export default {
           row.status = -2;
         });
     },
-    // 批量检测
-    handleMultapie() {
-      if (this.multipleSelection.length <= 0) {
-        this.$message.error("请先选择需要检查的网站");
-        return;
-      }
-      /**
-       * 检测之前清楚count和需要检测的状态
-       *  */
-      this.multipleSelection = this.multipleSelection.map((item) => {
-        item.status = -1;
-        return item;
-      });
-      this.count = 0;
-      this.handleCheck(this.multipleSelection, this.count);
-    },
-    close() {
-      this.show = false;
-      this.$refs["ruleForm"].resetFields();
-      this.form = {};
-    },
     submit() {
       let type = this.type;
       let query = {
@@ -224,7 +226,6 @@ export default {
         email: this.form.email,
         id: this.form.id,
       };
-      console.log(!this.form.id);
       if (type == "add") {
         getapiInsert(query)
           .then((res) => {
@@ -256,10 +257,11 @@ export default {
       this.form = {};
     },
 
-    //批量审核
+    //批量检测
     BatchBatchTestingHandler() {
       if (this.multipleSelection.length <= 0) {
         this.$message.error("请选择你要检测的接口");
+        return;
       }
 
       this.multipleSelection = this.multipleSelection.map((item) => {
@@ -276,33 +278,33 @@ export default {
     // 编辑
     handleEdit(index, row) {
       console.log("编辑");
+      console.log(index);
+      this.type = "edit";
       let data = index;
       this.show = true;
-      this.form = {
-        title: data.title,
-        url: data.url,
-        params: data.params,
-        methods: data.methods,
-        headers: data.headers,
-        email: data.email,
-        id: data.id,
-      };
+      this.form = { ...index };
     },
 
     // 删除
     handleDelete(index, row) {
       console.log(index.id);
       let id = index.id;
-      getapiRemove(id).then((res) => {
-        if (res.status == 1) {
-          this.init();
-          this.$message({
-            message: "删除成功",
-            type: "success",
-          });
-        } else {
-          this.$message.error("删除失败");
-        }
+      this.$confirm("是否删除?", "", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        getapiRemove(id).then((res) => {
+          if (res.status == 1) {
+            this.init();
+            this.$message({
+              message: "删除成功",
+              type: "success",
+            });
+          } else {
+            this.$message.error("删除失败");
+          }
+        });
       });
     },
     toggleSelection(rows) {
@@ -317,6 +319,11 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
       console.log(this.multipleSelection);
+    },
+    close() {
+      this.show = false;
+      this.$refs["ruleForm"].resetFields();
+      this.form = {};
     },
   },
 };
