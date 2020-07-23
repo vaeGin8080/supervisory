@@ -7,8 +7,9 @@
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b"
+      router
     >
-      <el-menu-item index="1">首页</el-menu-item>
+      <el-menu-item index="/home">首页</el-menu-item>
       <el-menu-item index="3">监控中心</el-menu-item>
       <el-menu-item index="4">动态趋势</el-menu-item>
     </el-menu>
