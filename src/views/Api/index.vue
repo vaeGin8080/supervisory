@@ -11,8 +11,8 @@
         </el-col>
         <el-col :span="4" :offset="12">
           <div class="flex-ali">
-            <el-button type="primary" @click="show = true">新增监控</el-button>
-            <el-button type="danger" @click="BatchBatchTestingHandler"
+            <el-button type="primary" @click="show = true; type = 'add' ">新增监控</el-button>
+            <el-button type="success" @click="BatchBatchTestingHandler"
               >批量检测</el-button
             >
           </div>
@@ -139,6 +139,7 @@ export default {
         email: "",
         id: "",
       },
+	  count: 0,
     };
   },
   mounted() {
@@ -154,39 +155,49 @@ export default {
       });
     },
     searchButton() {},
-    handleCheck(row) {
-      console.log(row);
-      row.status = 0;
-      let query = {
-        id: row.id,
-        url: row.url,
-      };
-      checkApi(query)
-        .then((res) => {
-          console.log(res);
-          if (res.code == "200" && res.status == 1) {
-            row.status = 1;
-            row.delayTime = res.data.delayTime + res.data.unit;
-          } else {
-            row.status = -2;
-          }
+    handleCheck(row ,count) {
+		
+		if(typeof count == "number"){
+			row = this.multipleSelection[count];
+		}
+		row.status = 0;
+		let query = {
+			id: row.id,
+			url: row.url,
+			title: row.title,
+			email: row.email,
+			params: row.params
+		};
+		checkApi(query)
+			.then((res) => {
+			console.log(res);
+			if (res.code == "200" && res.status == 1) {
+				row.status = 1;
+				row.delayTime = res.data.delayTime + res.data.unit;
+			} else {
+				row.status = -2;
+			}
+			if (count < this.multipleSelection.length - 1) {
+			  this.handleCheck(row, ++this.count);
+			}
         })
         .catch((rej) => {
           row.status = -2;
         });
     },
     submit() {
-      let query = {
-        url: this.form.url,
-        title: this.form.title,
-        params: this.form.params,
-        methods: this.form.methods,
-        headers: this.form.headers,
-        email: this.form.email,
-        id: this.form.id,
-      };
+		let type = this.type;
+		let query = {
+			url: this.form.url,
+			title: this.form.title,
+			params: this.form.params,
+			methods: this.form.methods,
+			headers: this.form.headers,
+			email: this.form.email,
+			id: this.form.id,
+		};
       console.log(!this.form.id);
-      if (!this.form.id) {
+      if (type == "add") {
         getapiInsert(query)
           .then((res) => {
             if (res.status == 1) {
@@ -200,8 +211,6 @@ export default {
             }
           })
           .catch((rej) => {});
-        this.show = false;
-        this.form = {};
       } else {
         getapiUpdate(query).then((res) => {
           if (res.status == 1) {
@@ -210,18 +219,26 @@ export default {
               message: "修改成功",
               type: "success",
             });
-          } else {
-            this.$message.error("修改失败");
-          }
-        });
-        this.show = false;
-        this.form = {};
+          } 
+        })
+		.catch((rej) => {});
       }
+	  this.show = false;
+	  this.form = {};
     },
 
     //批量审核
     BatchBatchTestingHandler() {
-      console.log(this.multipleSelection);
+		if(this.multipleSelection.length <= 0){
+			this.$message.error("请选择你要检测的接口");
+		}
+		
+		this.multipleSelection = this.multipleSelection.map((item) => {
+			item.status = -1;
+			return item;
+		});
+		this.count = 0;
+		this.handleCheck(this.multipleSelection, this.count);
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);

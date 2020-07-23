@@ -187,7 +187,7 @@ export default {
       /**
        * 检测之前清楚count和需要检测的状态
        *  */
-      this.multipleSelection = this.multipleSelection.map((item) => {
+      this.multipleSelection = this.multipleSelection.map((item) => {	
         item.status = -1;
         return item;
       });
