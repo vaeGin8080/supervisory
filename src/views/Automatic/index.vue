@@ -8,7 +8,7 @@
       <li
         v-for="(item, index) in tableData"
         :style="[{ animationDelay: (index + 1) * 0.05 + 's' }]"
-        :class="[count == index ? 'animation-mi' : '']"
+        :class="[count == index ? 'animation-shake' : '']"
         class="item"
         :key="index"
       >
@@ -40,7 +40,6 @@ export default {
       clearInterval(this.timer);
     } else {
       this.timer = setInterval(() => {
-        this.list = [];
         // 调用相应的接口，渲染数据
         this.testing(this.count);
       }, 1000 * 60 * 3); //三分钟刷新一次
@@ -83,7 +82,6 @@ export default {
               this.testing(++count);
             }, 500);
           }
-          //   console.log(this.count);
         })
         .catch((rej) => {
           item.status = -2;
@@ -106,6 +104,7 @@ export default {
 @import "../../styles/animate.scss";
 .wrap {
   background: #333;
+  height: 100%;
   .header {
     padding: 10px;
   }
@@ -134,7 +133,10 @@ export default {
   box-shadow: 2px 2px 4px 2px #fff;
   padding: 50px;
   margin: 0 1% 2%;
+  transition: all 0.5s;
   &:hover {
+    transform: scale(1.1);
+    border: 5px solid rgb(15, 120, 146);
   }
 }
 .item .success {
