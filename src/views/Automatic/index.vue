@@ -1,14 +1,14 @@
 <template>
   <div class="wrap">
     <div class="header flex justify-between">
-      <el-button type="info">返回</el-button>
-      <el-button type="success">重新检测</el-button>
+      <el-button type="info" @click="back">返回</el-button>
+      <el-button type="success" @click="init">重新检测</el-button>
     </div>
     <ul class="list">
       <li
         v-for="(item, index) in tableData"
-        :style="[{ animationDelay: (index + 1) * 0.1 + 's' }]"
-        :class="[count == index ? 'animation-shake' : '']"
+        :style="[{ animationDelay: (index + 1) * 0.05 + 's' }]"
+        :class="[count == index ? 'animation-mi' : '']"
         class="item"
         :key="index"
       >
@@ -40,21 +40,26 @@ export default {
       clearInterval(this.timer);
     } else {
       this.timer = setInterval(() => {
-        this.count = 0,
+        this.list = [];
+        // 调用相应的接口，渲染数据
         this.testing(this.count);
-      }, 500000); //5分钟刷新一次
+      }, 1000 * 60 * 3); //三分钟刷新一次
     }
   },
   methods: {
     init() {
       let that = this;
-      getUrlList().then((res) => {
+      this.count = 0;
+      getUrlList({ page: 1, pageSize: 100 }).then((res) => {
         this.tableData = res.data.data.map((item) => {
           item.status = -1;
           return item;
         });
         this.testing(this.count);
       });
+    },
+    back() {
+      this.$router.go(-1);
     },
     testing(count) {
       let item = this.tableData[count];
@@ -77,18 +82,16 @@ export default {
               this.count++;
               this.testing(++count);
             }, 500);
-          } else if (count >= this.tableData.length) {
-            this.count = 0;
           }
-          console.log(this.count);
+          //   console.log(this.count);
         })
         .catch((rej) => {
           item.status = -2;
           if (count < this.tableData.length - 1) {
-            this.count++;
-            this.testing(++count);
-          } else if (count >= this.tableData.length) {
-            this.count = 0;
+            setTimeout(() => {
+              this.count++;
+              this.testing(++count);
+            }, 500);
           }
         });
     },
