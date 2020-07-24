@@ -10,7 +10,7 @@
       router
     >
       <el-menu-item index="/home">首页</el-menu-item>
-      <el-menu-item index="3">监控中心</el-menu-item>
+      <el-menu-item index="/monitor">监控中心</el-menu-item>
       <el-menu-item index="4">动态趋势</el-menu-item>
     </el-menu>
   </div>
