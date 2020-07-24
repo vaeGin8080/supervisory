@@ -40,9 +40,8 @@ export default {
       clearInterval(this.timer);
     } else {
       this.timer = setInterval(() => {
-        this.list = [];
         // 调用相应的接口，渲染数据
-        this.init();
+        this.testing(this.count);
       }, 1000 * 60 * 3); //三分钟刷新一次
     }
   },
@@ -83,7 +82,6 @@ export default {
               this.testing(++count);
             }, 500);
           }
-          // console.log(this.count);
         })
         .catch((rej) => {
           item.status = -2;

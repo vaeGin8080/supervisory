@@ -34,6 +34,11 @@ const routes = [
 	  path: "/monitor",
 	  name: "monitor",
 	  component: () => import("../views/Automatic/index.vue"),
+  },
+  {
+	  path: "/login",
+	  name: "login",
+	  component: () => import("../views/index/index.vue"),
   }
 ];
 
