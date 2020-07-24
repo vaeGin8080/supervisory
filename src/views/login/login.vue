@@ -28,6 +28,7 @@
 </template>
 
 <script>
+	import { getlogin } from "@/api/login.js"
 	export default {
 		data(){
 			return{
@@ -45,7 +46,23 @@
 		},
 		methods:{
 			onSubmit(){
-				
+				let query = {
+					userName: this.form.username,
+					passWord: this.form.passward
+				}
+				console.log(query);
+				getlogin(query).then((res) => {
+					console.log(res);
+					if(res.status == 1){
+						this.$router.push({path: '/home'});
+					}else{
+						this.$message({
+						        showClose: true,
+						        message: '登录失败请检查账号密码',
+						        type: 'error'
+							});
+					}
+				})
 			}
 		}
 	}

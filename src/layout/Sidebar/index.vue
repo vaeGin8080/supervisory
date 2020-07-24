@@ -14,6 +14,7 @@
       <el-menu-item-group>
         <el-menu-item index="/home">网址列表</el-menu-item>
         <el-menu-item index="/home/api">API列表</el-menu-item>
+		<el-menu-item index="/home/personnel">人员管理</el-menu-item>
       </el-menu-item-group>
     </el-submenu>
   </el-menu>
