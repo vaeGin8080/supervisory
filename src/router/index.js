@@ -17,8 +17,7 @@ const routes = [
         meta: {
           title: "首页",
         },
-        component: () =>
-          import(/* webpackChunkName: "about" */ "../views/Home/index.vue"),
+        component: () => import("../views/Home/index.vue"),
       },
       {
         path: "home/api",
@@ -31,15 +30,15 @@ const routes = [
     ],
   },
   {
-	  path: "/monitor",
-	  name: "monitor",
-	  component: () => import("../views/Automatic/index.vue"),
+    path: "/monitor",
+    name: "monitor",
+    component: () => import("../views/Automatic/index.vue"),
   },
   {
-	  path: "/login",
-	  name: "login",
-	  component: () => import("../views/login/login.vue"),
-  }
+    path: "/login",
+    name: "login",
+    component: () => import("../views/login/login.vue"),
+  },
 ];
 
 const router = new VueRouter({
@@ -48,4 +47,9 @@ const router = new VueRouter({
   routes,
 });
 
+// 重写push方法，点击重复path不报错
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch((err) => err);
+};
 export default router;

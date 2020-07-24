@@ -1,7 +1,8 @@
 <template>
   <div class="wrap">
-    <div class="header flex justify-between">
-      <el-button type="info" @click="back">返回</el-button>
+    <el-header><Header></Header></el-header>
+    <div class="header flex justify-end">
+      <!-- <el-button type="info" @click="back">返回</el-button> -->
       <el-button type="success" @click="init">重新检测</el-button>
     </div>
     <ul class="list">
@@ -16,9 +17,9 @@
         <p>
           <a :href="item.url" target="_blank">{{ item.url }}</a>
         </p>
-        <i v-if="item.status == 1" class="el-icon-success success"></i>
+        <i v-if="item.status == 1" class="el-icon-success success fontsize"></i>
         <i v-if="item.status == -1" class="el-icon-loading loading"></i>
-        <i v-if="item.status == -2" class="el-icon-error error"></i>
+        <i v-if="item.status == -2" class="el-icon-error error fontsize"></i>
       </li>
     </ul>
   </div>
@@ -105,6 +106,7 @@ export default {
 .wrap {
   background: #333;
   height: 100%;
+  position: relative;
   .header {
     padding: 10px;
   }
@@ -139,14 +141,15 @@ export default {
     border: 5px solid rgb(15, 120, 146);
   }
 }
+.fontsize {
+  font-size: 100px;
+}
 .item .success {
   margin: 0 auto;
-  font-size: 100px;
   color: #67c23a;
 }
 .item .error {
   margin: 0 auto;
-  font-size: 100px;
   color: #f56c6c;
 }
 .item .loading {
@@ -167,5 +170,35 @@ export default {
     word-wrap: break-all;
   }
   cursor: pointer;
+}
+@media (max-width: 1400px) {
+  .item {
+    width: 30%;
+    height: 220px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+}
+@media (max-width: 1000px) {
+  .item {
+    width: 48%;
+    height: 220px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+}
+@media (max-width: 475px) {
+  .item {
+    width: 100%;
+    height: 180px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .fontsize {
+    font-size: 50px;
+  }
+  .loading {
+    font-size: 30px;
+  }
 }
 </style>

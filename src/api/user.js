@@ -8,3 +8,12 @@ export function getUserInfo(params) {
     params: params,
   });
 }
+
+// 登录
+export function getLogin(params) {
+  return request({
+    url: "/login",
+    method: "post",
+    data: params,
+  });
+}
