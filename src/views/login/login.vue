@@ -3,8 +3,8 @@
 		<div class="bg"></div>
 		<div class="login">
 			<h3>比安缇网站在线监测</h3>
-			<el-form rel="form" :model="form">
-				<el-form-item>
+			<el-form rel="form" :model="form" :rules="rules">
+				<el-form-item prop="username">
 					<el-input
 					    placeholder="请输入用户名"
 					    prefix-icon="el-icon-user"
@@ -15,7 +15,8 @@
 					<el-input
 					    placeholder="请输入密码"
 					    prefix-icon="el-icon-unlock"
-					    v-model="form.passward">
+					    v-model="form.passward"
+						show-password>
 					</el-input>
 				</el-form-item>
 				<el-form-item>
@@ -33,6 +34,12 @@
 				form:{
 					username: '',
 					passward: ''
+				},
+				rules:{
+					// username: [
+					// 	{ required: true, message: '请输入用户名', trigger: 'blur' },
+					// 	{ min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+					// ],
 				}
 			}
 		},
