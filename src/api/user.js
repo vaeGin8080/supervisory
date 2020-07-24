@@ -34,17 +34,27 @@ export function getUserUpdate(query) {
 export function getUserDelete(params) {
   return request({
     url: "/userRemove",
+	method: "get",
+	params: params,
+	})
+}
+
+// 获取用户信息
+
+export function getUserInfo(params) {
+  return request({
+    url: "/userDetail",
     method: "get",
     params: params,
   });
 }
 
-// 检测网站连通性
+// 登录
 
-export function checkUrl(query) {
+export function getLogin(params) {
   return request({
-    url: "/trys",
+    url: "/login",
     method: "post",
-    data: query,
+    data: params,
   });
 }

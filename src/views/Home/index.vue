@@ -2,19 +2,21 @@
   <el-container class="wrap">
     <div class="line"></div>
     <el-main>
-      <el-row style="border: 1px solid #EBEEF5;" class="flex justify-between">
-        <el-col :span="6">
+      <el-row
+        style="border: 1px solid #EBEEF5;"
+        class="search-wrap flex justify-between"
+      >
+        <el-col class="seach-top flex">
           <el-input
             v-model="title"
             placeholder="请输入内容"
+            style="width:200px;margin-right:10px"
             @keydown.enter.native="init"
           ></el-input>
-        </el-col>
-        <el-col :span="2">
           <el-button type="primary" @click="init">搜索</el-button>
         </el-col>
         <el-col>
-          <div class="flex justify-end">
+          <div class="search-bottom flex justify-end">
             <el-button
               type="primary"
               @click="
@@ -129,6 +131,7 @@ import {
   getUrlUpdate,
   getUrlDelete,
 } from "@/api/url";
+
 export default {
   components: {},
   data() {
@@ -309,5 +312,16 @@ export default {
 .searchBut {
   width: 100px;
   margin-right: 10px;
+}
+@media (max-width: 450px) {
+  .search-wrap {
+    flex-direction: column;
+  }
+  .seach-top {
+    margin-bottom: 10px;
+  }
+  .search-bottom {
+    justify-content: flex-start;
+  }
 }
 </style>

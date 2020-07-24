@@ -2,7 +2,7 @@
   <el-container class="h-100">
     <el-header><Header></Header></el-header>
     <el-container>
-      <Sidebar></Sidebar>
+      <Sidebar class="xs-hide"></Sidebar>
       <!-- out-in：当前元素先进行过渡，完成之后新元素过渡进入。 -->
       <transition name="fade" mode="out-in">
         <router-view :key="key"></router-view>
@@ -20,13 +20,11 @@
 
 <script>
 // import Sticky from "@/components/Sticky";
-import Header from "./header";
 import Sidebar from "./Sidebar";
 import { mapGetters } from "vuex";
 
 export default {
   components: {
-    Header,
     Sidebar,
   },
   data() {

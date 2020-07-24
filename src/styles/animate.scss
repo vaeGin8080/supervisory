@@ -120,7 +120,7 @@
 @keyframes shake {
   0%,
   100% {
-    transform: translateX(0);
+    transform: translateX(0) scale(1.1);
   }
 
   10% {

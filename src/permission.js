@@ -7,7 +7,7 @@ import getPageTitle from "@/utils/get-page-title";
 
 NProgress.configure({ showSpinner: false }); // NProgress Configuration
 
-const whiteList = []; // no redirect whitelist
+const whiteList = ["/login"]; // no redirect whitelist
 const whiteName = [];
 router.beforeEach(async (to, from, next) => {
   // start progress bar
@@ -15,13 +15,20 @@ router.beforeEach(async (to, from, next) => {
 
   // set page title
   document.title = getPageTitle(to.meta.title);
-  next();
-
   // determine whether the user has logged in
-  /*  const hasToken = store.getters.isLogin;
+  var hasToken = store.getters.isLogin;
   console.log(hasToken);
   if (hasToken) {
-    next();
+    console.log("has token");
+    if (to.path === "/login") {
+      // if is logged in, redirect to the home page
+      console.log("if login");
+      next({ path: "/" });
+      NProgress.done();
+    } else {
+      next();
+      NProgress.done();
+    }
   } else {
     if (
       whiteList.indexOf(to.path) !== -1 ||
@@ -31,10 +38,10 @@ router.beforeEach(async (to, from, next) => {
     } else {
       console.log("one else");
       Message.error("请登录");
-      next(`/?redirect=${to.path}`);
+      next(`/login?redirect=${to.path}`);
       NProgress.done();
     }
-  } */
+  }
 });
 
 router.afterEach(() => {
