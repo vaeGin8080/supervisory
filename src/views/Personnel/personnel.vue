@@ -72,7 +72,7 @@
           <el-input v-model="form.userName" :disabled="input"></el-input>
         </el-form-item>
         <el-form-item label="密码：">
-          <el-input v-model="form.passWord"></el-input>
+          <el-input v-model="form.passWord" show-password></el-input>
         </el-form-item>
         <div class="flex justify-end">
           <el-button type="danger" @click="close">取消</el-button>
