@@ -31,11 +31,13 @@ export function getUserUpdate(query) {
 
 // 删除
 
-export function getUserDelete(params) {
-  return request({
-    url: "/userRemove",
-	method: "get",
-	params: params,
+export function getUserDelete(id) {
+	return request({
+		url: "/userRemove",
+		method: "get",
+		params: {
+			id,
+		},
 	})
 }
 
