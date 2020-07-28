@@ -104,17 +104,19 @@ export default {
 <style lang="scss" scoped>
 @import "../../styles/animate.scss";
 .wrap {
-  background: #333;
+  background: #012d5e;
   height: 100%;
   position: relative;
   .header {
+    margin-top: 10px;
     padding: 10px;
+    border-top: 2px solid #f5f5f5;
   }
 }
 .list {
   width: 100%;
   padding: 20px;
-  background: #333;
+  background: #012d5e;
   display: flex;
   list-style-type: none;
   flex-wrap: wrap;

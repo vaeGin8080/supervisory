@@ -15,3 +15,13 @@
 .el-menu.el-menu--horizontal {
   border-bottom: 0 !important;
 }
+
+.el-submenu {
+  width: 100%;
+}
+
+.el-menu-item:hover,
+.el-menu-item:focus {
+  outline: none;
+  color: #fcdf49 !important;
+}

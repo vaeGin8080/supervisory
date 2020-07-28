@@ -5,7 +5,7 @@
       :default-active="activeMenu"
       mode="horizontal"
       @select="handleSelect"
-      background-color="#545c64"
+      background-color="#012D5E"
       text-color="#fff"
       active-text-color="#ffd04b"
       router
@@ -69,7 +69,7 @@ export default {
 <style lang="scss" scoped>
 .headers {
   padding-left: 200px;
-  background: #545c64;
+  background: #012d5e;
   padding-right: 40px;
   .header-img {
     border-radius: 50%;
