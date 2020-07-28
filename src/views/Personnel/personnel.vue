@@ -20,12 +20,14 @@
               @click="
                 show = true;
                 type = 'add';
+				input = false;
+				form = { };
               "
               >新增用户</el-button
             >
-            <el-button type="danger" @click="BatchBatchTestingHandler"
+            <!-- <el-button type="danger" @click="BatchBatchTestingHandler"
               >批量删除</el-button
-            >
+            > -->
           </div>
         </el-col>
       </el-row>
@@ -67,7 +69,7 @@
     <Dialog v-if="show" :show.sync="show">
       <el-form ref="ruleForm" :model="form" label-width="120px">
         <el-form-item label="用户名：">
-          <el-input v-model="form.userName"></el-input>
+          <el-input v-model="form.userName" :disabled="input"></el-input>
         </el-form-item>
         <el-form-item label="密码：">
           <el-input v-model="form.passWord"></el-input>
@@ -90,6 +92,7 @@ import {
   getUserDelete,
   getUserInsert,
 } from "@/api/user.js";
+import md5 from "js-md5";
 export default {
   components: {},
   data() {
@@ -109,6 +112,7 @@ export default {
         page: 1,
         limit: 10,
       },
+	  input: '',
     };
   },
   mounted() {
@@ -131,40 +135,13 @@ export default {
       });
     },
     searchButton() {},
-    handleCheck(row, count) {
-      if (typeof count == "number") {
-        row = this.multipleSelection[count];
-      }
-      row.status = 0;
-      let query = {
-        id: row.id,
-        url: row.url,
-        title: row.title,
-        email: row.email,
-        params: row.params,
-      };
-      checkApi(query)
-        .then((res) => {
-          if (res.code == "200" && res.status == 1) {
-            row.status = 1;
-            row.delayTime = res.data.delayTime + res.data.unit;
-          } else {
-            row.status = -2;
-          }
-          if (count < this.multipleSelection.length - 1) {
-            this.handleCheck(row, ++this.count);
-          }
-        })
-        .catch((rej) => {
-          row.status = -2;
-        });
-    },
+    handleCheck(row, count) {},
     submit() {
       let type = this.type;
       let query = {
 		id: this.form.id,
         userName: this.form.userName,
-		passWord: this.form.passWord
+		passWord: md5(this.form.passWord),
       };
 	  console.log(query);
       if (type == "add") {
@@ -200,19 +177,19 @@ export default {
     },
 
     //批量检测
-    BatchBatchTestingHandler() {
-      if (this.multipleSelection.length <= 0) {
-        this.$message.error("请选择你要检测的接口");
-        return;
-      }
+    // BatchBatchTestingHandler() {
+      // if (this.multipleSelection.length <= 0) {
+      //   this.$message.error("请选择你要检测的接口");
+      //   return;
+      // }
 
-      this.multipleSelection = this.multipleSelection.map((item) => {
-        item.status = -1;
-        return item;
-      });
-      this.count = 0;
-      this.handleCheck(this.multipleSelection, this.count);
-    },
+      // this.multipleSelection = this.multipleSelection.map((item) => {
+      //   item.status = -1;
+      //   return item;
+      // });
+      // this.count = 0;
+    //   // this.handleCheck(this.multipleSelection, this.count);
+    // },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
     },
@@ -225,6 +202,7 @@ export default {
       let data = index;
       this.show = true;
       this.form = { ...index };
+	  this.input = true;
     },
 
     // 删除
